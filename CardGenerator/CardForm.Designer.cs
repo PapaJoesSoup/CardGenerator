@@ -56,6 +56,9 @@
       this.nudRange = new System.Windows.Forms.NumericUpDown();
       this.nudHealth = new System.Windows.Forms.NumericUpDown();
       this.nudManaCost = new System.Windows.Forms.NumericUpDown();
+      this.btnInsert = new System.Windows.Forms.Button();
+      this.btnDelete = new System.Windows.Forms.Button();
+      this.btnGenerate = new System.Windows.Forms.Button();
       ((System.ComponentModel.ISupportInitialize)(this.nudAttack)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.nudSpell)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.nudRange)).BeginInit();
@@ -74,13 +77,13 @@
             this.ManaCost});
       this.CardListView.FullRowSelect = true;
       this.CardListView.HideSelection = false;
-      this.CardListView.Location = new System.Drawing.Point(438, 53);
+      this.CardListView.Location = new System.Drawing.Point(438, 42);
       this.CardListView.MultiSelect = false;
       this.CardListView.Name = "CardListView";
-      this.CardListView.Size = new System.Drawing.Size(336, 385);
+      this.CardListView.Size = new System.Drawing.Size(336, 362);
       this.CardListView.TabIndex = 0;
       this.CardListView.UseCompatibleStateImageBehavior = false;
-      this.CardListView.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
+      this.CardListView.SelectedIndexChanged += new System.EventHandler(this.CardListView_SelectedIndexChanged);
       // 
       // ID
       // 
@@ -97,65 +100,68 @@
       // chkStructure
       // 
       this.chkStructure.AutoSize = true;
-      this.chkStructure.Location = new System.Drawing.Point(94, 420);
+      this.chkStructure.Location = new System.Drawing.Point(94, 411);
       this.chkStructure.Name = "chkStructure";
       this.chkStructure.Size = new System.Drawing.Size(80, 17);
-      this.chkStructure.TabIndex = 1;
+      this.chkStructure.TabIndex = 9;
       this.chkStructure.Text = "Is Structure";
       this.chkStructure.UseVisualStyleBackColor = true;
-      this.chkStructure.CheckedChanged += new System.EventHandler(this.chkStructure_CheckedChanged);
+      this.chkStructure.CheckedChanged += new System.EventHandler(this.ChkStructure_CheckedChanged);
       // 
       // chkTotem
       // 
       this.chkTotem.AutoSize = true;
-      this.chkTotem.Location = new System.Drawing.Point(180, 420);
+      this.chkTotem.Location = new System.Drawing.Point(180, 411);
       this.chkTotem.Name = "chkTotem";
       this.chkTotem.Size = new System.Drawing.Size(63, 17);
-      this.chkTotem.TabIndex = 2;
+      this.chkTotem.TabIndex = 10;
       this.chkTotem.Text = "isTotem";
       this.chkTotem.UseVisualStyleBackColor = true;
-      this.chkTotem.CheckedChanged += new System.EventHandler(this.chkTotem_CheckedChanged);
+      this.chkTotem.CheckedChanged += new System.EventHandler(this.ChkTotem_CheckedChanged);
       // 
       // chkUndead
       // 
       this.chkUndead.AutoSize = true;
-      this.chkUndead.Location = new System.Drawing.Point(249, 421);
+      this.chkUndead.Location = new System.Drawing.Point(249, 412);
       this.chkUndead.Name = "chkUndead";
       this.chkUndead.Size = new System.Drawing.Size(75, 17);
-      this.chkUndead.TabIndex = 3;
+      this.chkUndead.TabIndex = 11;
       this.chkUndead.Text = "Is Undead";
       this.chkUndead.UseVisualStyleBackColor = true;
-      this.chkUndead.CheckedChanged += new System.EventHandler(this.chkUndead_CheckedChanged);
+      this.chkUndead.CheckedChanged += new System.EventHandler(this.ChkUndead_CheckedChanged);
       // 
       // txtName
       // 
-      this.txtName.Location = new System.Drawing.Point(94, 65);
+      this.txtName.Location = new System.Drawing.Point(94, 40);
       this.txtName.Name = "txtName";
-      this.txtName.Size = new System.Drawing.Size(180, 20);
-      this.txtName.TabIndex = 4;
-      this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
+      this.txtName.Size = new System.Drawing.Size(230, 20);
+      this.txtName.TabIndex = 1;
+      this.txtName.TextChanged += new System.EventHandler(this.TxtName_TextChanged);
+      this.txtName.Enter += new System.EventHandler(this.TxtName_Enter);
       // 
       // txtModifier
       // 
-      this.txtModifier.Location = new System.Drawing.Point(94, 248);
+      this.txtModifier.Location = new System.Drawing.Point(94, 223);
       this.txtModifier.Multiline = true;
       this.txtModifier.Name = "txtModifier";
-      this.txtModifier.Size = new System.Drawing.Size(180, 166);
-      this.txtModifier.TabIndex = 6;
-      this.txtModifier.TextChanged += new System.EventHandler(this.txtModifier_TextChanged);
+      this.txtModifier.Size = new System.Drawing.Size(230, 181);
+      this.txtModifier.TabIndex = 8;
+      this.txtModifier.TextChanged += new System.EventHandler(this.TxtModifier_TextChanged);
+      this.txtModifier.Enter += new System.EventHandler(this.TxtModifier_Enter);
       // 
       // txtType
       // 
-      this.txtType.Location = new System.Drawing.Point(94, 91);
+      this.txtType.Location = new System.Drawing.Point(94, 66);
       this.txtType.Name = "txtType";
-      this.txtType.Size = new System.Drawing.Size(180, 20);
-      this.txtType.TabIndex = 10;
-      this.txtType.TextChanged += new System.EventHandler(this.txtType_TextChanged);
+      this.txtType.Size = new System.Drawing.Size(230, 20);
+      this.txtType.TabIndex = 2;
+      this.txtType.TextChanged += new System.EventHandler(this.TxtType_TextChanged);
+      this.txtType.Enter += new System.EventHandler(this.TxtType_Enter);
       // 
       // lblID
       // 
       this.lblID.AutoSize = true;
-      this.lblID.Location = new System.Drawing.Point(25, 34);
+      this.lblID.Location = new System.Drawing.Point(25, 24);
       this.lblID.Name = "lblID";
       this.lblID.Size = new System.Drawing.Size(43, 13);
       this.lblID.TabIndex = 12;
@@ -164,7 +170,7 @@
       // lblName
       // 
       this.lblName.AutoSize = true;
-      this.lblName.Location = new System.Drawing.Point(25, 72);
+      this.lblName.Location = new System.Drawing.Point(25, 47);
       this.lblName.Name = "lblName";
       this.lblName.Size = new System.Drawing.Size(35, 13);
       this.lblName.TabIndex = 13;
@@ -173,7 +179,7 @@
       // lblModifier
       // 
       this.lblModifier.AutoSize = true;
-      this.lblModifier.Location = new System.Drawing.Point(25, 255);
+      this.lblModifier.Location = new System.Drawing.Point(25, 230);
       this.lblModifier.Name = "lblModifier";
       this.lblModifier.Size = new System.Drawing.Size(44, 13);
       this.lblModifier.TabIndex = 15;
@@ -182,7 +188,7 @@
       // lblAttack
       // 
       this.lblAttack.AutoSize = true;
-      this.lblAttack.Location = new System.Drawing.Point(25, 124);
+      this.lblAttack.Location = new System.Drawing.Point(25, 99);
       this.lblAttack.Name = "lblAttack";
       this.lblAttack.Size = new System.Drawing.Size(38, 13);
       this.lblAttack.TabIndex = 16;
@@ -191,7 +197,7 @@
       // lblHealth
       // 
       this.lblHealth.AutoSize = true;
-      this.lblHealth.Location = new System.Drawing.Point(25, 202);
+      this.lblHealth.Location = new System.Drawing.Point(25, 177);
       this.lblHealth.Name = "lblHealth";
       this.lblHealth.Size = new System.Drawing.Size(38, 13);
       this.lblHealth.TabIndex = 17;
@@ -200,7 +206,7 @@
       // lblManaCost
       // 
       this.lblManaCost.AutoSize = true;
-      this.lblManaCost.Location = new System.Drawing.Point(25, 228);
+      this.lblManaCost.Location = new System.Drawing.Point(25, 203);
       this.lblManaCost.Name = "lblManaCost";
       this.lblManaCost.Size = new System.Drawing.Size(58, 13);
       this.lblManaCost.TabIndex = 18;
@@ -209,7 +215,7 @@
       // lblType
       // 
       this.lblType.AutoSize = true;
-      this.lblType.Location = new System.Drawing.Point(25, 98);
+      this.lblType.Location = new System.Drawing.Point(25, 73);
       this.lblType.Name = "lblType";
       this.lblType.Size = new System.Drawing.Size(31, 13);
       this.lblType.TabIndex = 19;
@@ -218,7 +224,7 @@
       // lblIDValue
       // 
       this.lblIDValue.AutoSize = true;
-      this.lblIDValue.Location = new System.Drawing.Point(94, 34);
+      this.lblIDValue.Location = new System.Drawing.Point(94, 24);
       this.lblIDValue.Name = "lblIDValue";
       this.lblIDValue.Size = new System.Drawing.Size(13, 13);
       this.lblIDValue.TabIndex = 20;
@@ -226,28 +232,28 @@
       // 
       // btnSave
       // 
-      this.btnSave.Location = new System.Drawing.Point(332, 59);
+      this.btnSave.Location = new System.Drawing.Point(341, 39);
       this.btnSave.Name = "btnSave";
       this.btnSave.Size = new System.Drawing.Size(75, 23);
-      this.btnSave.TabIndex = 21;
+      this.btnSave.TabIndex = 12;
       this.btnSave.Text = "Save";
       this.btnSave.UseVisualStyleBackColor = true;
-      this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+      this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
       // 
       // btnCancel
       // 
-      this.btnCancel.Location = new System.Drawing.Point(332, 88);
+      this.btnCancel.Location = new System.Drawing.Point(341, 68);
       this.btnCancel.Name = "btnCancel";
       this.btnCancel.Size = new System.Drawing.Size(75, 23);
-      this.btnCancel.TabIndex = 22;
+      this.btnCancel.TabIndex = 13;
       this.btnCancel.Text = "Cancel";
       this.btnCancel.UseVisualStyleBackColor = true;
-      this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+      this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
       // 
       // lblCardList
       // 
       this.lblCardList.AutoSize = true;
-      this.lblCardList.Location = new System.Drawing.Point(435, 34);
+      this.lblCardList.Location = new System.Drawing.Point(435, 24);
       this.lblCardList.Name = "lblCardList";
       this.lblCardList.Size = new System.Drawing.Size(83, 13);
       this.lblCardList.TabIndex = 23;
@@ -256,7 +262,7 @@
       // lblSpell
       // 
       this.lblSpell.AutoSize = true;
-      this.lblSpell.Location = new System.Drawing.Point(25, 150);
+      this.lblSpell.Location = new System.Drawing.Point(25, 125);
       this.lblSpell.Name = "lblSpell";
       this.lblSpell.Size = new System.Drawing.Size(64, 13);
       this.lblSpell.TabIndex = 25;
@@ -265,7 +271,7 @@
       // lblRange
       // 
       this.lblRange.AutoSize = true;
-      this.lblRange.Location = new System.Drawing.Point(25, 176);
+      this.lblRange.Location = new System.Drawing.Point(25, 151);
       this.lblRange.Name = "lblRange";
       this.lblRange.Size = new System.Drawing.Size(39, 13);
       this.lblRange.TabIndex = 27;
@@ -273,99 +279,136 @@
       // 
       // nudAttack
       // 
-      this.nudAttack.Location = new System.Drawing.Point(97, 118);
+      this.nudAttack.Location = new System.Drawing.Point(97, 93);
       this.nudAttack.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
       this.nudAttack.Name = "nudAttack";
-      this.nudAttack.Size = new System.Drawing.Size(177, 20);
-      this.nudAttack.TabIndex = 28;
+      this.nudAttack.Size = new System.Drawing.Size(227, 20);
+      this.nudAttack.TabIndex = 3;
       this.nudAttack.Value = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
-      this.nudAttack.ValueChanged += new System.EventHandler(this.nudAttack_ValueChanged);
+      this.nudAttack.ValueChanged += new System.EventHandler(this.NudAttack_ValueChanged);
+      this.nudAttack.Enter += new System.EventHandler(this.NudAttack_Enter);
       // 
       // nudSpell
       // 
-      this.nudSpell.Location = new System.Drawing.Point(97, 143);
+      this.nudSpell.Location = new System.Drawing.Point(97, 118);
       this.nudSpell.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
       this.nudSpell.Name = "nudSpell";
-      this.nudSpell.Size = new System.Drawing.Size(177, 20);
-      this.nudSpell.TabIndex = 29;
+      this.nudSpell.Size = new System.Drawing.Size(227, 20);
+      this.nudSpell.TabIndex = 4;
       this.nudSpell.Value = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
-      this.nudSpell.ValueChanged += new System.EventHandler(this.nudSpell_ValueChanged);
+      this.nudSpell.ValueChanged += new System.EventHandler(this.NudSpell_ValueChanged);
+      this.nudSpell.Enter += new System.EventHandler(this.NudSpell_Enter);
       // 
       // nudRange
       // 
-      this.nudRange.Location = new System.Drawing.Point(97, 169);
+      this.nudRange.Location = new System.Drawing.Point(97, 144);
       this.nudRange.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
       this.nudRange.Name = "nudRange";
-      this.nudRange.Size = new System.Drawing.Size(177, 20);
-      this.nudRange.TabIndex = 30;
+      this.nudRange.Size = new System.Drawing.Size(227, 20);
+      this.nudRange.TabIndex = 5;
       this.nudRange.Value = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
-      this.nudRange.ValueChanged += new System.EventHandler(this.nudRange_ValueChanged);
+      this.nudRange.ValueChanged += new System.EventHandler(this.NudRange_ValueChanged);
+      this.nudRange.Enter += new System.EventHandler(this.NudRange_Enter);
       // 
       // nudHealth
       // 
-      this.nudHealth.Location = new System.Drawing.Point(97, 195);
+      this.nudHealth.Location = new System.Drawing.Point(97, 170);
       this.nudHealth.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
       this.nudHealth.Name = "nudHealth";
-      this.nudHealth.Size = new System.Drawing.Size(177, 20);
-      this.nudHealth.TabIndex = 31;
+      this.nudHealth.Size = new System.Drawing.Size(227, 20);
+      this.nudHealth.TabIndex = 6;
       this.nudHealth.Value = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
-      this.nudHealth.ValueChanged += new System.EventHandler(this.nudHealth_ValueChanged);
+      this.nudHealth.ValueChanged += new System.EventHandler(this.NudHealth_ValueChanged);
+      this.nudHealth.Enter += new System.EventHandler(this.NudHealth_Enter);
       // 
       // nudManaCost
       // 
-      this.nudManaCost.Location = new System.Drawing.Point(97, 221);
+      this.nudManaCost.Location = new System.Drawing.Point(97, 196);
       this.nudManaCost.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
       this.nudManaCost.Name = "nudManaCost";
-      this.nudManaCost.Size = new System.Drawing.Size(177, 20);
-      this.nudManaCost.TabIndex = 32;
+      this.nudManaCost.Size = new System.Drawing.Size(227, 20);
+      this.nudManaCost.TabIndex = 7;
       this.nudManaCost.Value = new decimal(new int[] {
             1,
             0,
             0,
             -2147483648});
-      this.nudManaCost.ValueChanged += new System.EventHandler(this.nudManaCost_ValueChanged);
+      this.nudManaCost.ValueChanged += new System.EventHandler(this.NudManaCost_ValueChanged);
+      this.nudManaCost.Enter += new System.EventHandler(this.NudManaCost_Enter);
+      // 
+      // btnInsert
+      // 
+      this.btnInsert.Location = new System.Drawing.Point(438, 410);
+      this.btnInsert.Name = "btnInsert";
+      this.btnInsert.Size = new System.Drawing.Size(75, 23);
+      this.btnInsert.TabIndex = 14;
+      this.btnInsert.Text = "Insert";
+      this.btnInsert.UseVisualStyleBackColor = true;
+      this.btnInsert.Click += new System.EventHandler(this.BtnInsert_Click);
+      // 
+      // btnDelete
+      // 
+      this.btnDelete.Location = new System.Drawing.Point(519, 411);
+      this.btnDelete.Name = "btnDelete";
+      this.btnDelete.Size = new System.Drawing.Size(75, 23);
+      this.btnDelete.TabIndex = 15;
+      this.btnDelete.Text = "Delete";
+      this.btnDelete.UseVisualStyleBackColor = true;
+      this.btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
+      // 
+      // btnGenerate
+      // 
+      this.btnGenerate.Location = new System.Drawing.Point(657, 412);
+      this.btnGenerate.Name = "btnGenerate";
+      this.btnGenerate.Size = new System.Drawing.Size(117, 23);
+      this.btnGenerate.TabIndex = 28;
+      this.btnGenerate.Text = "Open Generator";
+      this.btnGenerate.UseVisualStyleBackColor = true;
       // 
       // CardForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(800, 450);
+      this.Controls.Add(this.btnGenerate);
+      this.Controls.Add(this.btnDelete);
+      this.Controls.Add(this.btnInsert);
       this.Controls.Add(this.nudManaCost);
       this.Controls.Add(this.nudHealth);
       this.Controls.Add(this.nudRange);
@@ -434,6 +477,9 @@
     private System.Windows.Forms.NumericUpDown nudRange;
     private System.Windows.Forms.NumericUpDown nudHealth;
     private System.Windows.Forms.NumericUpDown nudManaCost;
+    private System.Windows.Forms.Button btnInsert;
+    private System.Windows.Forms.Button btnDelete;
+    private System.Windows.Forms.Button btnGenerate;
   }
 }
 

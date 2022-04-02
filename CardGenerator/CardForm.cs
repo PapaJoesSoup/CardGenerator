@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
@@ -13,28 +14,68 @@ namespace CardGenerator
 {
   public partial class CardForm : Form
   {
-    public SqlConnection con;
-    public SqlDataAdapter ada;
-    public DataSet ds;
-    public DataTable dt;
+    // For Ethan, use "Ethan_Con" instead of "JDK_Con"
+    private readonly string _connectionString = ConfigurationManager.ConnectionStrings["JDK_Con"].ConnectionString;
+    public SqlConnection Con;
+    public SqlDataAdapter Ada;
+    public DataSet Ds;
+    public DataTable Dt;
+
+    public bool Inserting = false;
+
 
     public CardForm()
     {
       InitializeComponent();
       LoadDataSource();
       LoadCardList();
-      SetActionButtonStates(false);
+      SetFormButtonStates(false);
       SetFormFieldStates(false);
     }
 
-    #region ListView Operations
+    #region CardListView Operations
+    
+    private void BtnInsert_Click(object sender, EventArgs e)
+    {
+      Inserting = true;
+      ClearFormDetails();
+      lblIDValue.Text = "Inserting New Card";
+      SetListButtonStates();
+      SetFormFieldStates(true);
+      btnCancel.Enabled = true;
+      txtName.Focus();
+    }
+
+    private void BtnDelete_Click(object sender, EventArgs e)
+    {
+      if (CardListView.SelectedItems.Count == 0) return;
+
+      Int32.TryParse(CardListView.SelectedItems[0].SubItems[0].Text, out int rowId);
+      if (rowId < 1) return;
+      DataRow dr = Dt.Rows.Find(rowId);
+      dr.Delete();
+      if (Ada.Update(Ds) > 0)
+      {
+        CardListView.SelectedItems[0].Remove();
+      }
+      ClearFormDetails();
+      SetFormButtonStates(false);
+      SetListButtonStates();
+    }
+
+    private void SetListButtonStates()
+    {
+      btnInsert.Enabled = !Inserting;
+      btnDelete.Enabled = CardListView.SelectedItems.Count > 0;
+    }
+
     private void LoadCardList()
     {
       CardListView.View = View.Details;
       CardListView.Items.Clear();
-      for (int i = 0; i < dt.Rows.Count; i++)
+      for (int i = 0; i < Dt.Rows.Count; i++)
       {
-        DataRow dr = dt.Rows[i];
+        DataRow dr = Dt.Rows[i];
         ListViewItem listitem = new ListViewItem(dr["ID"].ToString());
         listitem.SubItems.Add(dr["CardName"].ToString());
         listitem.SubItems.Add(dr["ID"].ToString());
@@ -43,14 +84,14 @@ namespace CardGenerator
       }
     }
 
-    private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+    private void CardListView_SelectedIndexChanged(object sender, EventArgs e)
     {
-      SetActionButtonStates(false);
+      SetFormButtonStates(false);
       SetFormFieldStates(false);
       LoadRowData();
+      SetListButtonStates();
       if (CardListView.SelectedItems.Count > 0)
         SetFormFieldStates(true);
-
     }
     #endregion
 
@@ -59,16 +100,17 @@ namespace CardGenerator
     {
 
       // Setup the DataSource
-      con = new SqlConnection("Data Source = JDK_DESKTOP; Database = CardGenerator; Integrated Security = True");
-      ada = new SqlDataAdapter();
-      ada.TableMappings.Add("Table", "Card");
+      Con = new SqlConnection(_connectionString);
+      Ada = new SqlDataAdapter();
+      Ada.TableMappings.Add("Table", "Card");
+      
 
       // Setup the sql commands
-      SqlCommand selectCmd = new SqlCommand("SELECT * from Card", con);
+      SqlCommand selectCmd = new SqlCommand("SELECT * from Card", Con);
 
       SqlCommand updateCmd = new SqlCommand("UPDATE Card SET CardName = @CardName, AttackValue = @AttackValue, SpellValue = @SpellValue," + 
                                             " HealthValue = @HealthValue, ManaCost = @ManaCost, RangeValue = @RangeValue, Modifier = @Modifier," + 
-                                            " IsStructure = @IsStructure, IsTotem = @IsTotem, IsUndead = @IsUndead, Type = @Type WHERE ID = @ID", con);
+                                            " IsStructure = @IsStructure, IsTotem = @IsTotem, IsUndead = @IsUndead, Type = @Type WHERE ID = @ID", Con);
  
       updateCmd.Parameters.Add("@CardName", SqlDbType.NVarChar, 255, "CardName");
       updateCmd.Parameters.Add("@AttackValue", SqlDbType.Int, 4, "AttackValue");
@@ -84,14 +126,14 @@ namespace CardGenerator
       updateCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
 
 
-      SqlCommand deleteCmd = new SqlCommand("DELETE FROM Card WHERE ID = @ID", con);
+      SqlCommand deleteCmd = new SqlCommand("DELETE FROM Card WHERE ID = @ID", Con);
 
       deleteCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
 
       SqlCommand insertCmd = new SqlCommand("INSERT INTO Card (CardName, AttackValue, SpellValue, HealthValue, ManaCost, RangeValue," + 
                                             " Modifier, IsStructure, IsTotem, IsUndead, Type)" + 
                                             "VALUES (@CardName, @AttackValue, @SpellValue, @HealthValue, @ManaCost, @RangeValue, @Modifier," + 
-                                            " @IsStructure, @IsTotem, @IsUndead, @Type)", con);
+                                            " @IsStructure, @IsTotem, @IsUndead, @Type)", Con);
 
       insertCmd.Parameters.Add("@CardName", SqlDbType.NVarChar, 255, "CardName");
       insertCmd.Parameters.Add("@AttackValue", SqlDbType.Int, 4, "AttackValue");
@@ -104,39 +146,43 @@ namespace CardGenerator
       insertCmd.Parameters.Add("@IsTotem", SqlDbType.Bit, 1, "IsTotem");
       insertCmd.Parameters.Add("@IsUndead", SqlDbType.Bit, 1, "IsUndead");
       insertCmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50, "Type");
+      updateCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
 
-      ada.SelectCommand = selectCmd;
-      ada.UpdateCommand = updateCmd;
-      ada.DeleteCommand = deleteCmd;
-      ada.InsertCommand = insertCmd;
+      Ada.SelectCommand = selectCmd;
+      Ada.UpdateCommand = updateCmd;
+      Ada.DeleteCommand = deleteCmd;
+      Ada.InsertCommand = insertCmd;
 
       // Load the data...
-      ds = new DataSet();
-      dt = new DataTable();
-      ada.Fill(ds);
-      dt = ds.Tables[0];
+      Ds = new DataSet();
+      Dt = new DataTable();
+      Ada.Fill(Ds);
+      Dt = Ds.Tables[0];
+      Dt.Columns[0].AutoIncrement = true;
+      Dt.Columns[0].AutoIncrementSeed = 1;
+      Dt.Columns[0].AutoIncrementStep = 1;
 
       // Close the connection, we are done with the fill...
-      con.Close();
+      Con.Close();
 
       //Set Primary key
       DataColumn[] keys = new DataColumn[1];
-      keys[0] = dt.Columns[0];
-      dt.PrimaryKey = keys;
+      keys[0] = Dt.Columns[0];
+      Dt.PrimaryKey = keys;
     }
 
     private void LoadRowData()
     {
-      var items = this.CardListView.SelectedItems;
+      ListView.SelectedListViewItemCollection items = this.CardListView.SelectedItems;
       if (items.Count == 0)
       {
-        SetActionButtonStates(false);
+        SetFormButtonStates(false);
         return;
       }
-      var rowid = 0;
-      Int32.TryParse(items[0].SubItems[0].Text, out rowid);
+
+      int.TryParse(items[0].SubItems[0].Text, out int rowid);
       if (rowid < 1) return;
-      DataRow dr = dt.Rows.Find(rowid);
+      DataRow dr = Dt.Rows.Find(rowid);
       if (dr == null)
       {
         return;
@@ -171,21 +217,23 @@ namespace CardGenerator
       else
         this.nudRange.Value = -1;
       this.lblIDValue.Text = dr["ID"].ToString();
-      SetActionButtonStates(true);
+      SetFormButtonStates(true);
 
     }
 
     private void SaveRowData()
     {
-      var CurrentItem = this.CardListView.SelectedItems[0];
-      var items = this.CardListView.SelectedItems;
-      var rowid = 0;
-      Int32.TryParse(items[0].SubItems[0].Text, out rowid);
-      if (rowid < 1) return;
-      DataRow dr = dt.Rows.Find(rowid);
-      if (dr == null)
+      DataRow dr;
+      if (Inserting)
       {
-        return;
+        dr = Dt.NewRow();
+      }
+      else
+      {
+        Int32.TryParse(CardListView.SelectedItems[0].SubItems[0].Text, out int rowid);
+        if (rowid < 1) return;
+        dr = Dt.Rows.Find(rowid);
+        if (dr == null) return;
       }
       dr["IsStructure"] = this.chkStructure.Checked ? 1 : 0;
       dr["IsTotem"] = this.chkTotem.Checked ? 1 : 0;
@@ -217,83 +265,35 @@ namespace CardGenerator
       else
         dr["RangeValue"] = this.nudRange.Value;
 
-      ada.Update(ds);
-      //dr.AcceptChanges();
-      //dt.AcceptChanges();
-      //ds.AcceptChanges();
+      if (Inserting)
+      {
+        dr["ID"] = -1; // on an insert with an identity field, pass -1 and the db will insert the correct id.
+        Dt.Rows.Add(dr);
+        Inserting = false;
+        SetListButtonStates();
+      }
+      Ada.Update(Ds);
+      Dt.Clear();
+      Ada.Fill(Dt);
+      LoadCardList();
     }
     #endregion
 
-    #region Form Field Event Handlers
-    private void btnCancel_Click(object sender, EventArgs e)
+    #region Form Operations
+
+    private void BtnCancel_Click(object sender, EventArgs e)
     {
       LoadRowData();
-      SetActionButtonStates(false);
+      SetFormButtonStates(false);
     }
 
-    private void btnSave_Click(object sender, EventArgs e)
+    private void BtnSave_Click(object sender, EventArgs e)
     {
       SaveRowData();
-      SetActionButtonStates(false);
+      SetFormButtonStates(false);
     }
 
-    private void txtName_TextChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void txtType_TextChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void nudAttack_ValueChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void nudSpell_ValueChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void nudRange_ValueChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void nudHealth_ValueChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void nudManaCost_ValueChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void txtModifier_TextChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void chkStructure_CheckedChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void chkTotem_CheckedChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-
-    private void chkUndead_CheckedChanged(object sender, EventArgs e)
-    {
-      SetActionButtonStates(true);
-    }
-    #endregion
-
-    private void SetActionButtonStates(bool state)
+    private void SetFormButtonStates(bool state)
     {
       btnSave.Enabled = state;
       btnCancel.Enabled = state;
@@ -313,6 +313,119 @@ namespace CardGenerator
       this.chkTotem.Enabled = state;
       this.chkUndead.Enabled = state;
     }
+
+    private void ClearFormDetails()
+    {
+      this.lblIDValue.Text = "0";
+      this.txtName.Text = "";
+      this.txtType.Text = "";
+      this.nudAttack.Value = -1;
+      this.nudSpell.Value = -1;
+      this.nudRange.Value = -1;
+      this.nudHealth.Value = -1;
+      this.nudManaCost.Value = -1;
+      this.txtModifier.Text = "";
+      this.chkStructure.Checked = false;
+      this.chkTotem.Checked = false;
+      this.chkUndead.Checked = false;
+    }
+
+    private void TxtName_TextChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void TxtType_TextChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void NudAttack_ValueChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void NudSpell_ValueChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void NudRange_ValueChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void NudHealth_ValueChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void NudManaCost_ValueChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void TxtModifier_TextChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void ChkStructure_CheckedChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void ChkTotem_CheckedChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void ChkUndead_CheckedChanged(object sender, EventArgs e)
+    {
+      SetFormButtonStates(true);
+    }
+
+    private void TxtName_Enter(object sender, EventArgs e)
+    {
+      txtName.SelectAll();
+    }
+
+    private void TxtType_Enter(object sender, EventArgs e)
+    {
+      txtType.SelectAll();
+    }
+
+    private void TxtModifier_Enter(object sender, EventArgs e)
+    {
+      txtType.SelectAll();
+    }
+
+    private void NudAttack_Enter(object sender, EventArgs e)
+    {
+      nudAttack.Select(0,2);
+    }
+
+    private void NudRange_Enter(object sender, EventArgs e)
+    {
+      nudRange.Select(0,2);
+    }
+
+    private void NudHealth_Enter(object sender, EventArgs e)
+    {
+      nudHealth.Select(0,2);
+    }
+
+    private void NudSpell_Enter(object sender, EventArgs e)
+    {
+      nudSpell.Select(0,2);
+    }
+
+    private void NudManaCost_Enter(object sender, EventArgs e)
+    {
+      nudManaCost.Select(0,2);
+    }
+
+    #endregion
 
   }
 }
