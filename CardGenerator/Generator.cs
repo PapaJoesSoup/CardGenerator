@@ -16,5 +16,15 @@ namespace CardGenerator
     {
       InitializeComponent();
     }
+
+    private void Button1_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void comboBox5_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
   }
 }
