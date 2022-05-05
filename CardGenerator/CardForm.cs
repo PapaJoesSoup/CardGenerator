@@ -24,7 +24,7 @@ namespace CardGenerator
 
     public bool Inserting = false;
     public bool updatinglist = false;
-    public ListViewItem selectedItem;
+    public ListViewItem SelectedItem;
 
 
     public CardForm()
@@ -62,7 +62,7 @@ namespace CardGenerator
       if (Ada.Update(Ds) > 0)
       {
         CardListView.SelectedItems[0].Remove();
-        selectedItem = null;
+        SelectedItem = null;
       }
       ClearFormDetails();
       SetFormButtonStates(false);
@@ -87,7 +87,7 @@ namespace CardGenerator
         listitem.SubItems.Add(dr["CardName"].ToString());
         listitem.SubItems.Add(dr["ManaCost"].ToString());
         listitem.SubItems.Add(dr["ID"].ToString());
-        if (selectedItem != null && selectedItem.Text == listitem.Text) listitem.Selected = true;
+        if (SelectedItem != null && SelectedItem.Text == listitem.Text) listitem.Selected = true;
         CardListView.Items.Add(listitem);
       }
       updatinglist = false;
@@ -102,10 +102,10 @@ namespace CardGenerator
       SetListButtonStates();
       if (CardListView.SelectedItems.Count > 0)
       {
-        selectedItem = CardListView.SelectedItems[0];
+        SelectedItem = CardListView.SelectedItems[0];
         SetFormFieldStates(true);
       } else
-        selectedItem = null;
+        SelectedItem = null;
     }
     #endregion
 
@@ -284,7 +284,7 @@ namespace CardGenerator
         dr["ID"] = DBNull.Value; // on an insert with an identity field, pass null and the db will insert the correct id.
         Dt.Rows.Add(dr);
         Inserting = false;
-        selectedItem = null;
+        SelectedItem = null;
         SetListButtonStates();
       }
       Ada.Update(Ds);
