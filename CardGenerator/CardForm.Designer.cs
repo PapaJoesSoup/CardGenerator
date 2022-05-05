@@ -178,6 +178,7 @@
       this.lblName.Size = new System.Drawing.Size(35, 13);
       this.lblName.TabIndex = 13;
       this.lblName.Text = "Name";
+      this.lblName.Click += new System.EventHandler(this.lblName_Click);
       // 
       // lblModifier
       // 
