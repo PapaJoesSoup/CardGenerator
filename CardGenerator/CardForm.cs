@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Deployment.Application;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,8 @@ namespace CardGenerator
     public DataTable Dt;
 
     public bool Inserting = false;
+    public bool updatinglist = false;
+    public ListViewItem selectedItem;
 
 
     public CardForm()
@@ -32,6 +35,8 @@ namespace CardGenerator
       SetFormButtonStates(false);
       SetFormFieldStates(false);
     }
+
+    public Dictionary<string, bool> RqdFieldsChanged;
 
     #region CardListView Operations
     
@@ -57,6 +62,7 @@ namespace CardGenerator
       if (Ada.Update(Ds) > 0)
       {
         CardListView.SelectedItems[0].Remove();
+        selectedItem = null;
       }
       ClearFormDetails();
       SetFormButtonStates(false);
@@ -73,25 +79,33 @@ namespace CardGenerator
     {
       CardListView.View = View.Details;
       CardListView.Items.Clear();
+      updatinglist = true;
       for (int i = 0; i < Dt.Rows.Count; i++)
       {
         DataRow dr = Dt.Rows[i];
         ListViewItem listitem = new ListViewItem(dr["ID"].ToString());
         listitem.SubItems.Add(dr["CardName"].ToString());
+        listitem.SubItems.Add(dr["ManaCost"].ToString());
         listitem.SubItems.Add(dr["ID"].ToString());
-        listitem.SubItems.Add(dr["ID"].ToString());
+        if (selectedItem != null && selectedItem.Text == listitem.Text) listitem.Selected = true;
         CardListView.Items.Add(listitem);
       }
+      updatinglist = false;
     }
 
     private void CardListView_SelectedIndexChanged(object sender, EventArgs e)
     {
+      if (updatinglist) return;
       SetFormButtonStates(false);
       SetFormFieldStates(false);
       LoadRowData();
       SetListButtonStates();
       if (CardListView.SelectedItems.Count > 0)
+      {
+        selectedItem = CardListView.SelectedItems[0];
         SetFormFieldStates(true);
+      } else
+        selectedItem = null;
     }
     #endregion
 
@@ -102,51 +116,51 @@ namespace CardGenerator
       // Setup the DataSource
       Con = new SqlConnection(_connectionString);
       Ada = new SqlDataAdapter();
-      Ada.TableMappings.Add("Table", "Card");
+      Ada.TableMappings.Add("Table", "CardTable");
       
 
       // Setup the sql commands
-      SqlCommand selectCmd = new SqlCommand("SELECT * from Card", Con);
+      SqlCommand selectCmd = new SqlCommand("SELECT * from CardTable", Con);
 
-      SqlCommand updateCmd = new SqlCommand("UPDATE Card SET CardName = @CardName, AttackValue = @AttackValue, SpellValue = @SpellValue," + 
+      SqlCommand updateCmd = new SqlCommand("UPDATE CardTable SET CardName = @CardName, AttackValue = @AttackValue, SpellValue = @SpellValue," + 
                                             " HealthValue = @HealthValue, ManaCost = @ManaCost, RangeValue = @RangeValue, Modifier = @Modifier," + 
                                             " IsStructure = @IsStructure, IsTotem = @IsTotem, IsUndead = @IsUndead, Type = @Type WHERE ID = @ID", Con);
  
-      updateCmd.Parameters.Add("@CardName", SqlDbType.NVarChar, 255, "CardName");
-      updateCmd.Parameters.Add("@AttackValue", SqlDbType.Int, 4, "AttackValue");
-      updateCmd.Parameters.Add("@SpellValue", SqlDbType.Int, 4, "SpellValue");
-      updateCmd.Parameters.Add("@HealthValue", SqlDbType.Int, 4, "HealthValue");
-      updateCmd.Parameters.Add("@ManaCost", SqlDbType.Int, 4, "ManaCost");
-      updateCmd.Parameters.Add("@RangeValue", SqlDbType.Int, 4, "RangeValue");
-      updateCmd.Parameters.Add("@Modifier", SqlDbType.NVarChar, 512, "Modifier");
+      updateCmd.Parameters.Add("@CardName", SqlDbType.VarChar, 50, "CardName");
+      updateCmd.Parameters.Add("@AttackValue", SqlDbType.TinyInt, 1, "AttackValue");
+      updateCmd.Parameters.Add("@SpellValue", SqlDbType.TinyInt, 1, "SpellValue");
+      updateCmd.Parameters.Add("@HealthValue", SqlDbType.TinyInt, 1, "HealthValue");
+      updateCmd.Parameters.Add("@ManaCost", SqlDbType.TinyInt, 1, "ManaCost");
+      updateCmd.Parameters.Add("@RangeValue", SqlDbType.TinyInt, 1, "RangeValue");
+      updateCmd.Parameters.Add("@Modifier", SqlDbType.NVarChar, 255, "Modifier");
       updateCmd.Parameters.Add("@IsStructure", SqlDbType.Bit, 1, "IsStructure");
       updateCmd.Parameters.Add("@IsTotem", SqlDbType.Bit, 1, "IsTotem");
       updateCmd.Parameters.Add("@IsUndead", SqlDbType.Bit, 1, "IsUndead");
-      updateCmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50, "Type");
-      updateCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
+      updateCmd.Parameters.Add("@Type", SqlDbType.VarChar, 20, "Type");
+      updateCmd.Parameters.Add("@ID", SqlDbType.SmallInt, 2, "ID");
 
 
-      SqlCommand deleteCmd = new SqlCommand("DELETE FROM Card WHERE ID = @ID", Con);
+      SqlCommand deleteCmd = new SqlCommand("DELETE FROM CardTable WHERE ID = @ID", Con);
 
-      deleteCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
+      deleteCmd.Parameters.Add("@ID", SqlDbType.SmallInt, 4, "ID");
 
-      SqlCommand insertCmd = new SqlCommand("INSERT INTO Card (CardName, AttackValue, SpellValue, HealthValue, ManaCost, RangeValue," + 
+      SqlCommand insertCmd = new SqlCommand("INSERT INTO CardTable (CardName, AttackValue, SpellValue, HealthValue, ManaCost, RangeValue," + 
                                             " Modifier, IsStructure, IsTotem, IsUndead, Type)" + 
                                             "VALUES (@CardName, @AttackValue, @SpellValue, @HealthValue, @ManaCost, @RangeValue, @Modifier," + 
                                             " @IsStructure, @IsTotem, @IsUndead, @Type)", Con);
 
-      insertCmd.Parameters.Add("@CardName", SqlDbType.NVarChar, 255, "CardName");
-      insertCmd.Parameters.Add("@AttackValue", SqlDbType.Int, 4, "AttackValue");
-      insertCmd.Parameters.Add("@SpellValue", SqlDbType.Int, 4, "SpellValue");
-      insertCmd.Parameters.Add("@HealthValue", SqlDbType.Int, 4, "HealthValue");
-      insertCmd.Parameters.Add("@ManaCost", SqlDbType.Int, 4, "ManaCost");
-      insertCmd.Parameters.Add("@RangeValue", SqlDbType.Int, 4, "RangeValue");
-      insertCmd.Parameters.Add("@Modifier", SqlDbType.NVarChar, 512, "Modifier");
+      insertCmd.Parameters.Add("@CardName", SqlDbType.VarChar, 50, "CardName");
+      insertCmd.Parameters.Add("@AttackValue", SqlDbType.TinyInt, 1, "AttackValue");
+      insertCmd.Parameters.Add("@SpellValue", SqlDbType.TinyInt, 1, "SpellValue");
+      insertCmd.Parameters.Add("@HealthValue", SqlDbType.TinyInt, 1, "HealthValue");
+      insertCmd.Parameters.Add("@ManaCost", SqlDbType.TinyInt, 1, "ManaCost");
+      insertCmd.Parameters.Add("@RangeValue", SqlDbType.TinyInt, 1, "RangeValue");
+      insertCmd.Parameters.Add("@Modifier", SqlDbType.NVarChar, 255, "Modifier");
       insertCmd.Parameters.Add("@IsStructure", SqlDbType.Bit, 1, "IsStructure");
       insertCmd.Parameters.Add("@IsTotem", SqlDbType.Bit, 1, "IsTotem");
       insertCmd.Parameters.Add("@IsUndead", SqlDbType.Bit, 1, "IsUndead");
-      insertCmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50, "Type");
-      updateCmd.Parameters.Add("@ID", SqlDbType.Int, 4, "ID");
+      insertCmd.Parameters.Add("@Type", SqlDbType.VarChar, 20, "Type");
+      insertCmd.Parameters.Add("@ID", SqlDbType.SmallInt, 2, "ID");
 
       Ada.SelectCommand = selectCmd;
       Ada.UpdateCommand = updateCmd;
@@ -197,23 +211,23 @@ namespace CardGenerator
       this.txtType.Text = (string)dr["Type"];
       this.txtName.Text = (string)dr["CardName"];
       if (dr["AttackValue"] != DBNull.Value)
-        this.nudAttack.Value = (int)dr["AttackValue"];
+        this.nudAttack.Value = (byte)dr["AttackValue"];
       else
         this.nudAttack.Value = -1;
       if (dr["SpellValue"] != DBNull.Value)
-        this.nudSpell.Value = (int)dr["SpellValue"];
+        this.nudSpell.Value = (byte)dr["SpellValue"];
       else
         this.nudSpell.Value = -1;
       if (dr["HealthValue"] != DBNull.Value)
-        this.nudHealth.Value = (int)dr["HealthValue"];
+        this.nudHealth.Value = (byte)dr["HealthValue"];
       else
         this.nudHealth.Value = -1;
       if (dr["ManaCost"] != DBNull.Value)
-        this.nudManaCost.Value = (int)dr["ManaCost"];
+        this.nudManaCost.Value = (byte)dr["ManaCost"];
       else
         this.nudManaCost.Value = -1;
       if (dr["RangeValue"] != DBNull.Value)
-        this.nudRange.Value = (int)dr["RangeValue"];
+        this.nudRange.Value = (byte)dr["RangeValue"];
       else
         this.nudRange.Value = -1;
       this.lblIDValue.Text = dr["ID"].ToString();
@@ -230,7 +244,7 @@ namespace CardGenerator
       }
       else
       {
-        Int32.TryParse(CardListView.SelectedItems[0].SubItems[0].Text, out int rowid);
+        Int32.TryParse(CardListView.SelectedItems[0].Text, out int rowid);
         if (rowid < 1) return;
         dr = Dt.Rows.Find(rowid);
         if (dr == null) return;
@@ -267,9 +281,10 @@ namespace CardGenerator
 
       if (Inserting)
       {
-        dr["ID"] = -1; // on an insert with an identity field, pass -1 and the db will insert the correct id.
+        dr["ID"] = DBNull.Value; // on an insert with an identity field, pass null and the db will insert the correct id.
         Dt.Rows.Add(dr);
         Inserting = false;
+        selectedItem = null;
         SetListButtonStates();
       }
       Ada.Update(Ds);
@@ -295,7 +310,7 @@ namespace CardGenerator
 
     private void SetFormButtonStates(bool state)
     {
-      btnSave.Enabled = state;
+      btnSave.Enabled = CanInsert(state);
       btnCancel.Enabled = state;
     }
 
@@ -423,6 +438,16 @@ namespace CardGenerator
     private void NudManaCost_Enter(object sender, EventArgs e)
     {
       nudManaCost.Select(0,2);
+    }
+
+    public bool CanInsert(bool state)
+    {
+      if (!Inserting) return state;
+      foreach (var item in RqdFieldsChanged)
+      {
+        if (!item.Value) return false;
+      }
+      return true;
     }
 
     #endregion
